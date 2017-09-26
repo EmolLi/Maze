@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Maze : MonoBehaviour {
 
@@ -13,6 +14,23 @@ public class Maze : MonoBehaviour {
         public GameObject east;     // 2    
         public GameObject west;     // 3
         public GameObject south;    // 4
+    }
+    public class Room
+    {
+        public bool visited;
+        public int[] cells;
+
+        public Room(int bottomLeftCell, int xSize, int ySize)
+        {
+            cells = new int[16];
+            for (int row = 0; row < 4; row++)
+            {
+                for (int col = 0; col < 4; col++)
+                {
+                    cells[row * 4 + col] = bottomLeftCell + row * xSize + col;
+                }
+            }
+        }
     }
 
 
@@ -41,6 +59,12 @@ public class Maze : MonoBehaviour {
     private List<int> lastCells = new List<int>();
     private int backingUp = 0;
     private int wallToBreak;
+
+    public Room[] rooms;
+    public Room curRoom;
+
+
+    //public 
 
     // Use this for initialization
     void Start () {
@@ -103,18 +127,18 @@ public class Maze : MonoBehaviour {
         // Assign walls to the cells 
         for (int cellProcess = 0; cellProcess < cells.Length; cellProcess++)
         {
+
+            if (termCnt == xSize)
+            {
+                eastWestProcess ++;
+                termCnt = 0;
+            }
             cells[cellProcess] = new Cell();
             cells[cellProcess].east = allWalls[eastWestProcess];
             cells[cellProcess].south = allWalls[childProcess + (xSize + 1) * ySize];
-            if (termCnt == xSize)
-            {
-                eastWestProcess += 2;
-                termCnt = 0;
-            }
-            else
-            {
-                eastWestProcess++;
-            }
+
+            eastWestProcess++;
+
             termCnt++;
             childProcess++;
             cells[cellProcess].west = allWalls[eastWestProcess];
@@ -126,17 +150,14 @@ public class Maze : MonoBehaviour {
     }
 
 
-    void createFloor()
-    {
-
-    }
 
     void CreateMaze()
     {
         // create entry
         Destroy(cells[mazeEntry].east);
+        CreateRooms();
 
-        if (visitedCells < totalCells)
+        while (visitedCells < totalCells)
         {
             if (startedBuilding)
             {
@@ -162,19 +183,60 @@ public class Maze : MonoBehaviour {
                 visitedCells++;
                 startedBuilding = true;
             }
-            Invoke("CreateMaze", 0.0f);
         }
 
-        else
-        {
             // end of the maze
-            Debug.Log(currentCell);
+            //Debug.Log(currentCell);
             GameObject exitObj = Instantiate(exit, cells[currentCell].pos, Quaternion.identity) as GameObject;
             //float scale = wallLength / 
             exitObj.transform.localScale -= new Vector3(0.8f, 0.8f, 0.8f); 
             //exitObj.transform.parent = wallHolder.transform;
 
-        }
+    }
+
+
+
+    void CreateRooms()
+    {
+        rooms = new Room[3];
+        /**
+        for (int j = 0; j < 3; j++)
+        {
+            int bottomLeftCell;
+            bool ableToCreateRoom = false;
+            // check if we can build a 4 * 4 room
+            if (!ableToCreateRoom)
+            {
+                bottomLeftCell = UnityEngine.Random.Range(1, totalCells);    // exclude 0 -> 0 is the entrance
+
+                if (xSize - bottomLeftCell % xSize >= 4
+                    && ySize - bottomLeftCell / xSize >= 4)        // 4 is room size
+                {
+                    Room r = new Room(bottomLeftCell, xSize, ySize);
+                    ableToCreateRoom = true;
+                    // check if overlap with other rooms
+                    // if the room overlaps with another room, one of the vertices of the other room must be in this room
+                    for (int k = 0; k < j; k++)
+                    {
+                        Room room = rooms[k];
+                        if (Array.Exists(r.cells, c => c == room.cells[0] || c == room.cells[4] || c == room.cells[12] || c == room.cells[15]))
+                            ableToCreateRoom = false;
+                    }
+                    if (ableToCreateRoom) curRoom = r;
+
+                }
+
+            }
+
+            // create room
+            for (int i = 0; i < 16; i++)
+            {
+                if (i % 4 != 3) Destroy(cells[curRoom.cells[i]].west);
+                if (i / 4 != 3) Destroy(cells[curRoom.cells[i]].north);
+            }
+            rooms[j] = curRoom;
+        }**/
+
     }
 
     void BreakWall()
@@ -201,7 +263,7 @@ public class Maze : MonoBehaviour {
         // west
         if (currentCell + 1 < totalCells && (currentCell + 1) != check)
         {
-            if (cells[currentCell + 1].visited == false)
+            if (cells[currentCell + 1].visited == false && !(Array.Exists(rooms, r =>  Array.Exists(r.cells, c => c == currentCell + 1) && r.visited)))
             {
                 neighbors[length] = currentCell + 1;
                 connectingWall[length] = 3;
@@ -212,7 +274,7 @@ public class Maze : MonoBehaviour {
         // east
         if (currentCell - 1 >= 0 && currentCell != check)
         {
-            if (cells[currentCell - 1].visited == false)
+            if (cells[currentCell - 1].visited == false && !(Array.Exists(rooms, r => Array.Exists(r.cells, c => c == currentCell - 1) && r.visited)))
             {
                 neighbors[length] = currentCell - 1;
                 connectingWall[length] = 2;
@@ -223,7 +285,7 @@ public class Maze : MonoBehaviour {
         // north
         if (currentCell + xSize < totalCells)
         {
-            if (cells[currentCell + xSize].visited == false)
+            if (cells[currentCell + xSize].visited == false && !(Array.Exists(rooms, r => Array.Exists(r.cells, c => c == currentCell + xSize) && r.visited)))
             {
                 neighbors[length] = currentCell + xSize;
                 connectingWall[length] = 1;
@@ -234,7 +296,7 @@ public class Maze : MonoBehaviour {
         // south
         if (currentCell - xSize >= 0)
         {
-            if (cells[currentCell - xSize].visited == false)
+            if (cells[currentCell - xSize].visited == false && !(Array.Exists(rooms, r => Array.Exists(r.cells, c => c == currentCell -xSize) && r.visited)))
             {
                 neighbors[length] = currentCell - xSize;
                 connectingWall[length] = 4;
@@ -244,9 +306,11 @@ public class Maze : MonoBehaviour {
 
         if (length > 0)
         {
-            int randomNeighbor = Random.Range(0, length);   //FIXME: length? or lenght - 1
+            int randomNeighbor = UnityEngine.Random.Range(0, length); 
             currentNeighbor = neighbors[randomNeighbor];
             wallToBreak = connectingWall[randomNeighbor];
+            int room = Array.FindIndex(rooms, r => Array.Exists(r.cells, c => c == currentNeighbor));
+            if (room >= 0) rooms[room].visited = true; 
 
         }
         else
