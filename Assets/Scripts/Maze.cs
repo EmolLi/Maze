@@ -15,6 +15,7 @@ public class Maze : MonoBehaviour
         public GameObject east;     // 2    
         public GameObject west;     // 3
         public GameObject south;    // 4
+        public List<int> neighbors;
     }
     [System.Serializable]
     public class Room
@@ -160,6 +161,8 @@ public class Maze : MonoBehaviour
             cells[cellProcess].north = allWalls[childProcess + (xSize + 1) * ySize + xSize - 1];
 
             cells[cellProcess].pos = cells[cellProcess].north.transform.position - new Vector3(0, 0, wallLength * 0.5f);
+
+            cells[cellProcess].neighbors = new List<int>();
         }
 
     }
@@ -266,11 +269,27 @@ public class Maze : MonoBehaviour
                 //float scale = wallLength / 
                 key.transform.localScale -= new Vector3(0.8f, 0.8f, 0.8f);
 
-                // remove walls in room
                 for (int i = 0; i < 16; i++)
                 {
-                    if (i % 4 != 3) Destroy(cells[curRoom.cells[i]].west);
-                    if (i / 4 != 3) Destroy(cells[curRoom.cells[i]].north);
+                    // remove walls in room & add neighbor
+                    if (i % 4 != 3)
+                    {
+                        Destroy(cells[curRoom.cells[i]].west);
+                        cells[curRoom.cells[i]].neighbors.Add(curRoom.cells[i] + 1);
+                    }
+                    if (i / 4 != 3)
+                    {
+                        Destroy(cells[curRoom.cells[i]].north);
+                        cells[curRoom.cells[i]].neighbors.Add(curRoom.cells[i] + xSize);
+                    }
+                    if (i % 4 != 0)
+                    {
+                        cells[curRoom.cells[i]].neighbors.Add(curRoom.cells[i] - 1);
+                    }
+                    if (i / 4 != 0)
+                    {
+                        cells[curRoom.cells[i]].neighbors.Add(curRoom.cells[i] - xSize);
+                    }
                 }
 
 
@@ -300,18 +319,14 @@ public class Maze : MonoBehaviour
                 {
                     if (Array.Exists(r.cells, c => (c == room.cells[0] || c == room.cells[3] || c == room.cells[12] || c == room.cells[15])))
                     {
-                        Debug.Log(bottomLeftCell + "   false");
                         return false;
                     }
 
                 }
-                Debug.Log("here");
             }
             curRoom = r;
-            Debug.Log(bottomLeftCell + "   true");
             return true;
         }
-        Debug.Log(bottomLeftCell + "   false2" + (xSize - bottomLeftCell % xSize) + "   " + (ySize - bottomLeftCell / xSize) + "fsdf");
         return false;
     }
 
@@ -390,10 +405,10 @@ public class Maze : MonoBehaviour
             {
                 rooms[room].visited = true;
                 visitedCells += 15;
-                //inRoom = true;
             }
-            //else inRoom = false;
 
+            cells[currentCell].neighbors.Add(currentNeighbor);
+            cells[currentNeighbor].neighbors.Add(currentCell);
         }
         else
         {
