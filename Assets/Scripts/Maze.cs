@@ -21,6 +21,7 @@ public class Maze : MonoBehaviour
     {
         public bool visited;
         public int[] cells;
+        public Vector3 midPos;
 
         public Room(int bottomLeftCell, int xSize, int ySize)
         {
@@ -43,9 +44,10 @@ public class Maze : MonoBehaviour
     public Vector3 position;
     public int mazeEntry;
 
-
+    
     public GameObject wall;
     public GameObject exit;
+    public GameObject roomKey;
     public float wallLength = 1.0f;
     public int xSize = 30;   // 30 rows in x axis
     public int ySize = 30;   // 30 rows in y axis
@@ -74,6 +76,8 @@ public class Maze : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        if (xSize < 15) xSize = 15;
+        if (ySize < 15) ySize = 15;
         CreateWalls();
     }
 
@@ -204,6 +208,7 @@ public class Maze : MonoBehaviour
 
     void CreateRooms()
     {
+       
         rooms = new Room[3];
         /**
         int roomIndex = 0;
@@ -239,11 +244,22 @@ public class Maze : MonoBehaviour
             if (ableToCreateRoom)
             {
                 rooms[j] = curRoom;
+
+                // place key in the middle of the room
+                Vector3 midPos = cells[curRoom.cells[5]].west.transform.position + new Vector3(0, 0, wallLength * 0.5f);
+                curRoom.midPos = midPos;
+                GameObject key = Instantiate(roomKey, midPos, Quaternion.identity) as GameObject;
+                //float scale = wallLength / 
+                key.transform.localScale -= new Vector3(0.8f, 0.8f, 0.8f);
+
+                // remove walls in room
                 for (int i = 0; i < 16; i++)
                 {
                     if (i % 4 != 3) Destroy(cells[curRoom.cells[i]].west);
                     if (i / 4 != 3) Destroy(cells[curRoom.cells[i]].north);
                 }
+
+
                 j++;
             }
             //maxCnt--;
