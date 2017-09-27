@@ -19,11 +19,7 @@ public class Shooter : MonoBehaviour {
         if (Input.GetButtonDown("Fire1"))    // jump is mapped to space
         {
             GameObject bullet = GameObject.Find("Bullet(Clone)");
-            if (bullet != null)
-            {
-                Debug.Log("no");
-                return;
-            }
+            if (bullet != null) return;     // only one bullet in flight at any time
             // if projectile is specified
             if (projectile)
             {
@@ -37,7 +33,7 @@ public class Shooter : MonoBehaviour {
                 }
                 // Apply force to the newProjectile's Rigidbody component if it has one
                 newProjectile.GetComponent<Rigidbody>().AddForce(transform.forward * power, ForceMode.VelocityChange);
-                Destroy(newProjectile, 2.0f);
+                Destroy(newProjectile, 3.0f);
 
                 // play sound effect if set
                 if (shootSFX)

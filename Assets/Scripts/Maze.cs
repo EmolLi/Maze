@@ -44,8 +44,9 @@ public class Maze : MonoBehaviour
     public Vector3 position;
     public int mazeEntry;
 
-    
+
     public GameObject wall;
+    public GameObject wallTrigger;
     public GameObject exit;
     public GameObject roomKey;
     public float wallLength = 1.0f;
@@ -100,6 +101,7 @@ public class Maze : MonoBehaviour
             {
                 myPos = new Vector3(initialPos.x + (j * wallLength) - wallLength / 2, initialPos.y, initialPos.z + (i * wallLength) - wallLength / 2);
                 tempWall = Instantiate(wall, myPos, Quaternion.identity) as GameObject;
+                tempWall.tag = "wall";
                 tempWall.transform.parent = wallHolder.transform;
             }
         }
@@ -111,6 +113,7 @@ public class Maze : MonoBehaviour
             {
                 myPos = new Vector3(initialPos.x + (j * wallLength), initialPos.y, initialPos.z + (i * wallLength) - wallLength);
                 tempWall = Instantiate(wall, myPos, Quaternion.Euler(0.0f, 90.0f, 0.0f)) as GameObject;
+                tempWall.tag = "wall";
                 tempWall.transform.parent = wallHolder.transform;
             }
         }
@@ -166,9 +169,12 @@ public class Maze : MonoBehaviour
     void CreateMaze()
     {
         // create entry
+        GameObject wallT = Instantiate(wallTrigger, cells[totalCells - 1].west.transform.position, cells[totalCells - 1].west.transform.rotation) as GameObject;
+        wallT.tag = "wall";
+        wallT.transform.parent = wallHolder.transform;
         Destroy(cells[totalCells - 1].west);
         CreateRooms();
-        
+
         while (visitedCells < totalCells)
         {
             if (startedBuilding)
@@ -197,14 +203,18 @@ public class Maze : MonoBehaviour
             }
         }
 
-            // end of the maze
-            //Debug.Log(currentCell);
-            GameObject exitObj = Instantiate(exit, cells[totalCells - xSize + 1].pos, Quaternion.identity) as GameObject;
-            //float scale = wallLength / 
-            exitObj.transform.localScale -= new Vector3(0.8f, 0.8f, 0.8f);
-            // create exit
-            Destroy(cells[totalCells - xSize].east);
-            //exitObj.transform.parent = wallHolder.transform;
+        // end of the maze
+        //Debug.Log(currentCell);
+        GameObject exitObj = Instantiate(exit, cells[totalCells - xSize + 1].pos, Quaternion.identity) as GameObject;
+        //float scale = wallLength / 
+        exitObj.transform.localScale -= new Vector3(0.8f, 0.8f, 0.8f);
+        // create exit
+
+        wallT = Instantiate(wallTrigger, cells[totalCells - xSize].east.transform.position, cells[totalCells - xSize].east.transform.rotation) as GameObject;
+        wallT.tag = "wall";
+        wallT.transform.parent = wallHolder.transform;
+        Destroy(cells[totalCells - xSize].east);
+        //exitObj.transform.parent = wallHolder.transform;
 
     }
 
@@ -212,7 +222,7 @@ public class Maze : MonoBehaviour
 
     void CreateRooms()
     {
-       
+
         rooms = new Room[3];
         /**
         int roomIndex = 0;
@@ -279,28 +289,28 @@ public class Maze : MonoBehaviour
         Debug.Log(bottomLeftCell + " run");
         if (xSize - bottomLeftCell % xSize >= 4
                     && ySize - bottomLeftCell / xSize >= 4)        // 4 is room size
+        {
+            Room r = new Room(bottomLeftCell, xSize, ySize);
+            // check if overlap with other rooms 
+            // if the room overlaps with another room, one of the vertices of the other room must be in this room
+            for (int i = 0; i < 3; i++)
             {
-                Room r = new Room(bottomLeftCell, xSize, ySize);
-                // check if overlap with other rooms 
-                // if the room overlaps with another room, one of the vertices of the other room must be in this room
-                for (int i = 0; i < 3; i++)
+                Room room = rooms[i];
+                if (room != null)
                 {
-                    Room room = rooms[i];
-                    if (room != null)
-                    {
-                        if (Array.Exists(r.cells, c => (c == room.cells[0] || c == room.cells[3] || c == room.cells[12] || c == room.cells[15])))
+                    if (Array.Exists(r.cells, c => (c == room.cells[0] || c == room.cells[3] || c == room.cells[12] || c == room.cells[15])))
                     {
                         Debug.Log(bottomLeftCell + "   false");
                         return false;
                     }
 
-                    }
-                    Debug.Log("here");
                 }
-            curRoom = r;
-                Debug.Log(bottomLeftCell + "   true");
-                return true;
+                Debug.Log("here");
             }
+            curRoom = r;
+            Debug.Log(bottomLeftCell + "   true");
+            return true;
+        }
         Debug.Log(bottomLeftCell + "   false2" + (xSize - bottomLeftCell % xSize) + "   " + (ySize - bottomLeftCell / xSize) + "fsdf");
         return false;
     }
