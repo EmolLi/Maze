@@ -70,12 +70,14 @@ public class Maze : MonoBehaviour
     public bool ableToCreateRoom;
     //public bool inRoom;
 
+    public GameObject terrain;
 
     //public 
 
     // Use this for initialization
     void Start()
     {
+        terrain = GameObject.Find("Underground");
         if (xSize < 15) xSize = 15;
         if (ySize < 15) ySize = 15;
         CreateWalls();
@@ -96,7 +98,7 @@ public class Maze : MonoBehaviour
         {
             for (int j = 0; j <= xSize; j++)
             {
-                myPos = new Vector3(initialPos.x + (j * wallLength) - wallLength / 2, 0.0f, initialPos.z + (i * wallLength) - wallLength / 2);
+                myPos = new Vector3(initialPos.x + (j * wallLength) - wallLength / 2, initialPos.y, initialPos.z + (i * wallLength) - wallLength / 2);
                 tempWall = Instantiate(wall, myPos, Quaternion.identity) as GameObject;
                 tempWall.transform.parent = wallHolder.transform;
             }
@@ -107,7 +109,7 @@ public class Maze : MonoBehaviour
         {
             for (int j = 0; j < xSize; j++)
             {
-                myPos = new Vector3(initialPos.x + (j * wallLength), 0.0f, initialPos.z + (i * wallLength) - wallLength);
+                myPos = new Vector3(initialPos.x + (j * wallLength), initialPos.y, initialPos.z + (i * wallLength) - wallLength);
                 tempWall = Instantiate(wall, myPos, Quaternion.Euler(0.0f, 90.0f, 0.0f)) as GameObject;
                 tempWall.transform.parent = wallHolder.transform;
             }
@@ -164,7 +166,7 @@ public class Maze : MonoBehaviour
     void CreateMaze()
     {
         // create entry
-        Destroy(cells[mazeEntry].east);
+        Destroy(cells[totalCells - 1].west);
         CreateRooms();
         
         while (visitedCells < totalCells)
@@ -187,7 +189,7 @@ public class Maze : MonoBehaviour
             }
             else
             {
-                currentCell = mazeEntry;
+                currentCell = totalCells - 1;   // entry
                 //currentCell = Random.Range(0, totalCells);
                 cells[currentCell].visited = true;
                 visitedCells++;
@@ -197,9 +199,11 @@ public class Maze : MonoBehaviour
 
             // end of the maze
             //Debug.Log(currentCell);
-            GameObject exitObj = Instantiate(exit, cells[currentCell].pos, Quaternion.identity) as GameObject;
+            GameObject exitObj = Instantiate(exit, cells[totalCells - xSize + 1].pos, Quaternion.identity) as GameObject;
             //float scale = wallLength / 
-            exitObj.transform.localScale -= new Vector3(0.8f, 0.8f, 0.8f); 
+            exitObj.transform.localScale -= new Vector3(0.8f, 0.8f, 0.8f);
+            // create exit
+            Destroy(cells[totalCells - xSize].east);
             //exitObj.transform.parent = wallHolder.transform;
 
     }
