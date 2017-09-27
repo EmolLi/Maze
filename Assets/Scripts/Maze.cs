@@ -16,6 +16,7 @@ public class Maze : MonoBehaviour
         public GameObject west;     // 3
         public GameObject south;    // 4
     }
+    [System.Serializable]
     public class Room
     {
         public bool visited;
@@ -65,6 +66,7 @@ public class Maze : MonoBehaviour
     public Room curRoom;
     public int[] selectRoom;
     public bool ableToCreateRoom;
+    //public bool inRoom;
 
 
     //public 
@@ -160,7 +162,7 @@ public class Maze : MonoBehaviour
         // create entry
         Destroy(cells[mazeEntry].east);
         CreateRooms();
-        /**
+        
         while (visitedCells < totalCells)
         {
             if (startedBuilding)
@@ -194,7 +196,7 @@ public class Maze : MonoBehaviour
             GameObject exitObj = Instantiate(exit, cells[currentCell].pos, Quaternion.identity) as GameObject;
             //float scale = wallLength / 
             exitObj.transform.localScale -= new Vector3(0.8f, 0.8f, 0.8f); 
-            //exitObj.transform.parent = wallHolder.transform;**/
+            //exitObj.transform.parent = wallHolder.transform;
 
     }
 
@@ -224,8 +226,8 @@ public class Maze : MonoBehaviour
 
         int bottomLeftCell;
         int j = 0;
-        int maxCnt = 5;
-        while (j < 3 && maxCnt > 0)
+        //int maxCnt = 5;
+        while (j < 3)
         {
             int row = UnityEngine.Random.Range(1, xSize - 4);
             int col = UnityEngine.Random.Range(1, ySize - 4);
@@ -244,7 +246,7 @@ public class Maze : MonoBehaviour
                 }
                 j++;
             }
-            maxCnt--;
+            //maxCnt--;
 
         }
 
@@ -266,7 +268,7 @@ public class Maze : MonoBehaviour
                     Room room = rooms[i];
                     if (room != null)
                     {
-                        if (Array.Exists(r.cells, c => (c == room.cells[0] || c == room.cells[4] || c == room.cells[12] || c == room.cells[15])))
+                        if (Array.Exists(r.cells, c => (c == room.cells[0] || c == room.cells[3] || c == room.cells[12] || c == room.cells[15])))
                     {
                         Debug.Log(bottomLeftCell + "   false");
                         return false;
@@ -354,7 +356,13 @@ public class Maze : MonoBehaviour
             currentNeighbor = neighbors[randomNeighbor];
             wallToBreak = connectingWall[randomNeighbor];
             int room = Array.FindIndex(rooms, r => Array.Exists(r.cells, c => c == currentNeighbor));
-            if (room >= 0) rooms[room].visited = true;
+            if (room >= 0)
+            {
+                rooms[room].visited = true;
+                visitedCells += 15;
+                //inRoom = true;
+            }
+            //else inRoom = false;
 
         }
         else
