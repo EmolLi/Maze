@@ -203,6 +203,7 @@ public class Maze : MonoBehaviour
         // create entry
         GameObject wallT = Instantiate(wallTrigger, cells[totalCells - 1].west.transform.position, cells[totalCells - 1].west.transform.rotation) as GameObject;
         wallT.tag = "wall";
+        wallT.GetComponent<ExitBlock>().block.enabled = false;
         wallT.transform.parent = wallHolder.transform;
         Destroy(cells[totalCells - 1].west);
         CreateRooms();
@@ -244,6 +245,7 @@ public class Maze : MonoBehaviour
 
         wallT = Instantiate(wallTrigger, cells[totalCells - xSize].east.transform.position, cells[totalCells - xSize].east.transform.rotation) as GameObject;
         wallT.tag = "wall";
+        wallT.name = "exit";
         wallT.transform.parent = wallHolder.transform;
         Destroy(cells[totalCells - xSize].east);
         //exitObj.transform.parent = wallHolder.transform;

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerState : MonoBehaviour {
     public bool isDead;
+    public int keyCnt = 0;
 
     void OnTriggerEnter(Collider other)
     {
@@ -12,6 +13,17 @@ public class PlayerState : MonoBehaviour {
             isDead = true;
             Debug.Log("oppo");
 
+        }
+
+        if (other.tag == "key")
+        {
+            keyCnt++;
+            Destroy(other.gameObject);
+        }
+
+        if (other.name == "exit")
+        {
+            //if 
         }
 
     }
