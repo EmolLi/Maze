@@ -45,11 +45,14 @@ public class Maze : MonoBehaviour
     public Vector3 position;
     public int mazeEntry;
 
+    GameObject mazeController;
+
 
     public GameObject wall;
     public GameObject wallTrigger;
     public GameObject exit;
     public GameObject roomKey;
+    public GameObject opponent;
     public float wallLength = 1.0f;
     public int xSize = 30;   // 30 rows in x axis
     public int ySize = 30;   // 30 rows in y axis
@@ -80,6 +83,14 @@ public class Maze : MonoBehaviour
     void Start()
     {
         terrain = GameObject.Find("Underground");
+        mazeController = GameObject.Find("Maze Generator (1)");
+        //mazeController.transform.rotation = Quaternion.identity; // Or desired position
+        //mazeController.transform.localRotation = Quaternion.identity;
+        //Debug.Log()
+        //position = mazeController.transform.position;
+        //mazeController.transform.localPosition = Vector3.zero;
+        //gameObject.transform.parent = mazeController.transform;
+        //gameObject.
         if (xSize < 15) xSize = 15;
         if (ySize < 15) ySize = 15;
         CreateWalls();
@@ -89,9 +100,14 @@ public class Maze : MonoBehaviour
     {
         wallHolder = new GameObject();
         wallHolder.name = "Maze";
+        /**
+        wallHolder.transform.SetParent(mazeController.transform);
+        wallHolder.transform.localScale = Vector3.one;
+        wallHolder.transform.localPosition = Vector3.zero; // Or desired position
+        wallHolder.transform.rotation = Quaternion.identity; // Or desired position**/
 
         initialPos = new Vector3((-xSize / 2) + wallLength / 2, 0.0f, (-ySize / 2
-            ) + wallLength / 2) + position;
+            ) + wallLength / 2) + mazeController.transform.position;
         Vector3 myPos = initialPos;
         GameObject tempWall;
 
@@ -100,7 +116,7 @@ public class Maze : MonoBehaviour
         {
             for (int j = 0; j <= xSize; j++)
             {
-                myPos = new Vector3(initialPos.x + (j * wallLength) - wallLength / 2, initialPos.y, initialPos.z + (i * wallLength) - wallLength / 2);
+                myPos = new Vector3(initialPos.x + (j * wallLength) - wallLength / 2, initialPos.y - 3 * j * wallLength * Mathf.Tan(8/180.0f), initialPos.z + (i * wallLength) - wallLength / 2);
                 tempWall = Instantiate(wall, myPos, Quaternion.identity) as GameObject;
                 tempWall.tag = "wall";
                 tempWall.transform.parent = wallHolder.transform;
@@ -112,7 +128,7 @@ public class Maze : MonoBehaviour
         {
             for (int j = 0; j < xSize; j++)
             {
-                myPos = new Vector3(initialPos.x + (j * wallLength), initialPos.y, initialPos.z + (i * wallLength) - wallLength);
+                myPos = new Vector3(initialPos.x + (j * wallLength), initialPos.y - 3 * j * wallLength * Mathf.Tan(8 / 180.0f), initialPos.z + (i * wallLength) - wallLength);
                 tempWall = Instantiate(wall, myPos, Quaternion.Euler(0.0f, 90.0f, 0.0f)) as GameObject;
                 tempWall.tag = "wall";
                 tempWall.transform.parent = wallHolder.transform;
@@ -121,6 +137,7 @@ public class Maze : MonoBehaviour
 
         createCells();
         CreateMaze();
+
     }
 
     void createCells()
@@ -305,7 +322,7 @@ public class Maze : MonoBehaviour
 
     bool checkIfAbleToCreateRoom(int bottomLeftCell)
     {
-        Debug.Log(bottomLeftCell + " run");
+        //Debug.Log(bottomLeftCell + " run");
         if (xSize - bottomLeftCell % xSize >= 4
                     && ySize - bottomLeftCell / xSize >= 4)        // 4 is room size
         {
