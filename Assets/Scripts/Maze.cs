@@ -3,6 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+[System.Serializable]
+public class Room
+{
+    public bool visited;
+    public int[] cells;
+    public Vector3 midPos;
+    public GameObject entranceTrigger;
+
+
+    public Room(int bottomLeftCell, int xSize, int ySize)
+    {
+        cells = new int[16];
+        for (int row = 0; row < 4; row++)
+        {
+            for (int col = 0; col < 4; col++)
+            {
+                cells[row * 4 + col] = bottomLeftCell + row * xSize + col;
+            }
+        }
+    }
+}
 
 public class Maze : MonoBehaviour
 {
@@ -23,27 +44,6 @@ public class Maze : MonoBehaviour
         public GameObject west;     // 3
         public GameObject south;    // 4
         public List<int> neighbors;
-    }
-    [System.Serializable]
-    public class Room
-    {
-        public bool visited;
-        public int[] cells;
-        public Vector3 midPos;
-        public GameObject entranceTrigger;
-
-
-        public Room(int bottomLeftCell, int xSize, int ySize)
-        {
-            cells = new int[16];
-            for (int row = 0; row < 4; row++)
-            {
-                for (int col = 0; col < 4; col++)
-                {
-                    cells[row * 4 + col] = bottomLeftCell + row * xSize + col;
-                }
-            }
-        }
     }
 
 
@@ -324,6 +324,7 @@ public class Maze : MonoBehaviour
                 }
 
                 curRoom.entranceTrigger = Instantiate(roomEntranceTrigger, curRoom.midPos, Quaternion.identity) as GameObject;
+                curRoom.entranceTrigger.GetComponent<OpponentSpam>().room = curRoom;
 
                 j++;
             }

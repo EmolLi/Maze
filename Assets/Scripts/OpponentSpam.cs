@@ -6,6 +6,8 @@ public class OpponentSpam : MonoBehaviour {
     public GameObject opponent;
     public GameObject generatedOpponent;
     public bool triggered;
+    public Room room;
+
     void OnTriggerEnter(Collider other)
     {
         if (!triggered && other.tag == "Player")
@@ -14,9 +16,12 @@ public class OpponentSpam : MonoBehaviour {
             GameObject m = GameObject.Find("Maze Generator (1)");
             Debug.Log(m);
             Maze maze =  m.GetComponent<Maze>();
-            GameObject generatedOpponent = Instantiate(opponent, maze.cells[0].pos + new Vector3(0, 1, 0), Quaternion.identity) as GameObject;
+            GameObject generatedOpponent = Instantiate(opponent, room.midPos, Quaternion.identity) as GameObject;
+            generatedOpponent.GetComponent<Opponent>().startCellIndex = room.cells[5];
+
+            // only spam once, so once triggered, destroy the object
+            Destroy(gameObject);
             
         }
-
     }
 }
