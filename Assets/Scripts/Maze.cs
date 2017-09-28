@@ -3,8 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+
 public class Maze : MonoBehaviour
 {
+
+    // const 
+    public const int north = 1;
+    public const int east = 2;
+    public const int west = 3;
+    public const int south = 4;
 
     [System.Serializable]
     public class Cell
@@ -23,6 +30,8 @@ public class Maze : MonoBehaviour
         public bool visited;
         public int[] cells;
         public Vector3 midPos;
+        public GameObject entranceTrigger;
+
 
         public Room(int bottomLeftCell, int xSize, int ySize)
         {
@@ -53,6 +62,7 @@ public class Maze : MonoBehaviour
     public GameObject exit;
     public GameObject roomKey;
     public GameObject opponent;
+    public GameObject roomEntranceTrigger;
     public float wallLength = 1.0f;
     public int xSize = 30;   // 30 rows in x axis
     public int ySize = 30;   // 30 rows in y axis
@@ -73,6 +83,8 @@ public class Maze : MonoBehaviour
     public Room curRoom;
     public int[] selectRoom;
     public bool ableToCreateRoom;
+    private bool inRoom;
+    private int preRoom;
     //public bool inRoom;
 
     public GameObject terrain;
@@ -107,7 +119,7 @@ public class Maze : MonoBehaviour
         wallHolder.transform.rotation = Quaternion.identity; // Or desired position**/
 
         initialPos = new Vector3((-xSize / 2) + wallLength / 2, 0.0f, (-ySize / 2
-            ) + wallLength / 2) + mazeController.transform.position;
+            ) + wallLength / 2) + mazeController.transform.position + new Vector3(0, 1, 0);
         Vector3 myPos = initialPos;
         GameObject tempWall;
 
@@ -225,9 +237,9 @@ public class Maze : MonoBehaviour
 
         // end of the maze
         //Debug.Log(currentCell);
-        GameObject exitObj = Instantiate(exit, cells[totalCells - xSize + 1].pos, Quaternion.identity) as GameObject;
+        GameObject exitObj = Instantiate(exit, cells[totalCells - xSize].pos, Quaternion.identity) as GameObject;
         //float scale = wallLength / 
-        exitObj.transform.localScale -= new Vector3(0.8f, 0.8f, 0.8f);
+        //exitObj.transform.localScale -= new Vector3(0.8f, 0.8f, 0.8f);
         // create exit
 
         wallT = Instantiate(wallTrigger, cells[totalCells - xSize].east.transform.position, cells[totalCells - xSize].east.transform.rotation) as GameObject;
@@ -284,7 +296,7 @@ public class Maze : MonoBehaviour
                 curRoom.midPos = midPos;
                 GameObject key = Instantiate(roomKey, midPos, Quaternion.identity) as GameObject;
                 //float scale = wallLength / 
-                key.transform.localScale -= new Vector3(0.8f, 0.8f, 0.8f);
+                //key.transform.localScale -= new Vector3(0.8f, 0.8f, 0.8f);
 
                 for (int i = 0; i < 16; i++)
                 {
@@ -309,6 +321,7 @@ public class Maze : MonoBehaviour
                     }
                 }
 
+                curRoom.entranceTrigger = Instantiate(roomEntranceTrigger, curRoom.midPos, Quaternion.identity) as GameObject;
 
                 j++;
             }
@@ -422,8 +435,12 @@ public class Maze : MonoBehaviour
             {
                 rooms[room].visited = true;
                 visitedCells += 15;
+                inRoom = true;
+                preRoom = room;
+
             }
 
+            inRoom = false;
             cells[currentCell].neighbors.Add(currentNeighbor);
             cells[currentNeighbor].neighbors.Add(currentCell);
         }
@@ -431,11 +448,14 @@ public class Maze : MonoBehaviour
         {
             if (backingUp > 0)
             {
+                inRoom = false;
                 currentCell = lastCells[backingUp];
                 backingUp--;
             }
         }
     }
+
+
     // Update is called once per frame
     void Update()
     {
