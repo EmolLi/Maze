@@ -119,7 +119,7 @@ public class Maze : MonoBehaviour
         wallHolder.transform.rotation = Quaternion.identity; // Or desired position**/
 
         initialPos = new Vector3((-xSize / 2) + wallLength / 2, 0.0f, (-ySize / 2
-            ) + wallLength / 2) + mazeController.transform.position + new Vector3(0, 1, 0);
+            ) + wallLength / 2) + mazeController.transform.position + new Vector3(0, 3, 0);
         Vector3 myPos = initialPos;
         GameObject tempWall;
 

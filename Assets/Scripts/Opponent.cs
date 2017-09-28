@@ -18,6 +18,7 @@ public class Opponent : MonoBehaviour {
     public int startCellIndex;
 
     private int current;
+    private bool reversePath;
 
     /**
     void OnCollisionEnter(Collision collision)
@@ -48,9 +49,12 @@ public class Opponent : MonoBehaviour {
         }
     }**/
     // Use this for initialization
-    void Awake () {
+    void Start() {
         maze = GameObject.Find("Maze Generator (1)").GetComponent<Maze>();
-        
+
+        curCell = startCellIndex;
+        Debug.Log(curCell + "sdfds" + startCellIndex);
+
         visitCellInfo = new bool[maze.xSize * maze.ySize];
         cellPath = new List<int>();
         visitedCellsCnt = 0;
@@ -62,13 +66,36 @@ public class Opponent : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if (path == null || current >= path.Length) return;
-        if (Mathf.Abs(transform.position.z - path[current].z) >= 0.2 || Mathf.Abs(transform.position.x - path[current].x) >= 0.2)
+        if (path == null) return;
+        if (!reversePath)
         {
-            Vector3 pos = Vector3.MoveTowards(transform.position, path[current], speed * Time.deltaTime);
-            GetComponent<Rigidbody>().MovePosition(pos);
+            if (current >= path.Length)
+            {
+                reversePath = true;
+                current--;
+            }
+            if (Mathf.Abs(transform.position.z - path[current].z) >= 0.2 || Mathf.Abs(transform.position.x - path[current].x) >= 0.2)
+            {
+                Vector3 pos = Vector3.MoveTowards(transform.position, path[current], speed * Time.deltaTime);
+                GetComponent<Rigidbody>().MovePosition(pos);
+            }
+            else current++;
         }
-        else current = current + 1;
+        else
+        {
+            // back to original place, reverse path
+            if (current < 0)
+            {
+                reversePath = false;
+                current++;
+            }
+            if (Mathf.Abs(transform.position.z - path[current].z) >= 0.2 || Mathf.Abs(transform.position.x - path[current].x) >= 0.2)
+            {
+                Vector3 pos = Vector3.MoveTowards(transform.position, path[current], speed * Time.deltaTime);
+                GetComponent<Rigidbody>().MovePosition(pos);
+            }
+            else current--;
+        }
     }
 
 
@@ -85,6 +112,7 @@ public class Opponent : MonoBehaviour {
                 if (backUp.Count <= 0)
                 {
                     Debug.Log("back up = 0");
+                    break;
                 }
                 else
                 {
