@@ -2,8 +2,6 @@
 Random maze generation
 
 
-# Random Terrain Generation
-- Perlin Noise
 ## ref 
 - [Perlin Noise in Unity](https://www.youtube.com/watch?v=bG0uEXV6aHQ)
 - [Terrain Generation with Perlin Noise](https://www.youtube.com/watch?v=vFvwyu_ZKfU&t=28s)
